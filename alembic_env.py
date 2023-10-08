@@ -1,5 +1,8 @@
 import os
 from dotenv import load_dotenv
+import os
+from alembic import command
+from alembic.config import Config
 
 # Загрузка переменных окружения из файла .env
 load_dotenv()
@@ -22,3 +25,17 @@ elif DB_TYPE == "mariadb":
     DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 else:
     raise ValueError("Unsupported DB_TYPE value in .env file")
+
+
+def migrate():
+    # Set up the configuration
+    alembic_cfg = Config(os.path.join(os.path.dirname(__file__), "alembic.ini"))
+    
+    # Generate the migration
+    command.revision(alembic_cfg, autogenerate=True, message="Auto-generated migration")
+    
+    # Apply the migration
+    command.upgrade(alembic_cfg, "head")
+
+# Call the function to perform the migration
+migrate()
